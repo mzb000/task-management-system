@@ -40,6 +40,8 @@ export const taskApi = {
   create: (data) => api.post('/tasks', data),
   update: (id, data) => api.put(`/tasks/${id}`, data),
   remove: (id) => api.delete(`/tasks/${id}`),
+  stats: () => api.get('/tasks/stats'),
+  bulk: (ids, action, value) => api.post('/tasks/bulk', { ids, action, value }),
   comments: (id) => api.get(`/tasks/${id}/comments`),
   addComment: (id, content) => api.post(`/tasks/${id}/comments`, { content }),
 }
