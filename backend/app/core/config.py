@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "no-reply@taskflow.app"
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # AI
+    ANTHROPIC_API_KEY: str = ""
+
     # File uploads
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 5 * 1024 * 1024  # 5 MB

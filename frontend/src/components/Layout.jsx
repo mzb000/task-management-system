@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, CheckSquare, User, LogOut, Bell, Menu, X, Zap,
+  Kanban, CalendarDays, BarChart2,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { miscApi } from '../api/client'
@@ -10,6 +11,9 @@ import { miscApi } from '../api/client'
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/tasks', label: 'Tasks', icon: CheckSquare },
+  { to: '/kanban', label: 'Kanban', icon: Kanban },
+  { to: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { to: '/analytics', label: 'Analytics', icon: BarChart2 },
   { to: '/profile', label: 'Profile', icon: User },
 ]
 
@@ -42,16 +46,21 @@ export default function Layout() {
     loadNotifs()
   }
 
+  const currentLabel = navItems.find(n => n.to === location.pathname)?.label
+    || location.pathname.replace('/', '')
+
   const SidebarContent = () => (
-    <div className="h-full flex flex-col p-5">
-      <div className="flex items-center gap-2 px-2 mb-8">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center">
+    <div className="h-full flex flex-col py-5 px-3">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-3 mb-8">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-sm shadow-brand-200">
           <Zap size={20} className="text-white" />
         </div>
-        <span className="text-xl font-extrabold tracking-tight">TaskFlow</span>
+        <span className="text-xl font-extrabold tracking-tight text-slate-800">TaskFlow</span>
       </div>
 
-      <nav className="flex-1 space-y-1">
+      {/* Nav */}
+      <nav className="flex-1 space-y-0.5">
         {navItems.map((item) => {
           const active = location.pathname === item.to
           const Icon = item.icon
@@ -60,7 +69,7 @@ export default function Layout() {
               key={item.to}
               to={item.to}
               onClick={() => setSidebarOpen(false)}
-              className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group"
             >
               {active && (
                 <motion.div
@@ -69,8 +78,17 @@ export default function Layout() {
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
-              <Icon size={18} className={`relative z-10 ${active ? 'text-white' : 'text-slate-500'}`} />
-              <span className={`relative z-10 ${active ? 'text-white' : 'text-slate-600'}`}>
+              <Icon
+                size={17}
+                className={`relative z-10 transition-colors ${
+                  active ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'
+                }`}
+              />
+              <span
+                className={`relative z-10 transition-colors ${
+                  active ? 'text-white' : 'text-slate-600 group-hover:text-slate-800'
+                }`}
+              >
                 {item.label}
               </span>
             </Link>
@@ -78,11 +96,12 @@ export default function Layout() {
         })}
       </nav>
 
+      {/* Logout */}
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
       >
-        <LogOut size={18} />
+        <LogOut size={17} />
         Logout
       </button>
     </div>
@@ -91,11 +110,11 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex bg-slate-100">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-64 bg-white border-r border-slate-200 fixed h-screen">
+      <aside className="hidden lg:block w-60 bg-white border-r border-slate-200 fixed h-screen">
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -105,68 +124,74 @@ export default function Layout() {
               className="fixed inset-0 bg-black/40 z-40 lg:hidden"
             />
             <motion.aside
-              initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
+              initial={{ x: -260 }} animate={{ x: 0 }} exit={{ x: -260 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed h-screen w-64 bg-white z-50 lg:hidden"
+              className="fixed h-screen w-60 bg-white z-50 lg:hidden border-r border-slate-200"
             >
+              <div className="flex justify-end p-3">
+                <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-lg hover:bg-slate-100">
+                  <X size={18} className="text-slate-500" />
+                </button>
+              </div>
               <SidebarContent />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Main */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      {/* Main content */}
+      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
         {/* Topbar */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2">
-            <Menu size={22} />
-          </button>
-          <div className="hidden lg:block font-semibold text-slate-700 capitalize">
-            {location.pathname.replace('/', '') || 'dashboard'}
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100">
+              <Menu size={20} className="text-slate-600" />
+            </button>
+            <span className="font-semibold text-slate-700 capitalize">{currentLabel}</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setShowNotifs((s) => !s)}
-                className="relative p-2 rounded-full hover:bg-slate-100 transition-colors"
+                className="relative p-2 rounded-xl hover:bg-slate-100 transition-colors"
               >
-                <Bell size={20} className="text-slate-600" />
+                <Bell size={19} className="text-slate-600" />
                 {unread > 0 && (
                   <motion.span
                     initial={{ scale: 0 }} animate={{ scale: 1 }}
                     className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold"
                   >
-                    {unread}
+                    {unread > 9 ? '9+' : unread}
                   </motion.span>
                 )}
               </button>
+
               <AnimatePresence>
                 {showNotifs && (
                   <motion.div
                     initial={{ opacity: 0, y: 8, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+                    className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50"
                   >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                      <span className="font-semibold text-sm">Notifications</span>
+                      <span className="font-semibold text-sm text-slate-800">Notifications</span>
                       {unread > 0 && (
-                        <button onClick={markAll} className="text-xs text-brand-600 font-medium">
+                        <button onClick={markAll} className="text-xs text-brand-600 font-semibold hover:text-brand-700">
                           Mark all read
                         </button>
                       )}
                     </div>
-                    <div className="max-h-80 overflow-y-auto">
+                    <div className="max-h-72 overflow-y-auto">
                       {notifs.length === 0 ? (
-                        <p className="p-6 text-center text-sm text-slate-400">No notifications</p>
+                        <p className="p-6 text-center text-sm text-slate-400">No notifications yet</p>
                       ) : (
-                        notifs.map((n) => (
+                        notifs.slice(0, 10).map((n) => (
                           <div
                             key={n.id}
-                            className={`px-4 py-3 border-b border-slate-50 ${!n.is_read ? 'bg-brand-50/50' : ''}`}
+                            className={`px-4 py-3 border-b border-slate-50 last:border-0 ${!n.is_read ? 'bg-brand-50/40' : ''}`}
                           >
                             <p className="text-sm font-medium text-slate-800">{n.title}</p>
                             {n.message && <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>}
@@ -180,17 +205,15 @@ export default function Layout() {
             </div>
 
             {/* Avatar */}
-            <Link to="/profile" className="flex items-center gap-2">
+            <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
+                <img src={user.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-200" />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold ring-2 ring-slate-200">
                   {user?.full_name?.[0]?.toUpperCase()}
                 </div>
               )}
-              <span className="hidden sm:block text-sm font-medium text-slate-700">
-                {user?.full_name}
-              </span>
+              <span className="hidden sm:block text-sm font-medium text-slate-700">{user?.full_name}</span>
             </Link>
           </div>
         </header>

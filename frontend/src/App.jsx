@@ -9,7 +9,11 @@ import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
 import Profile from './pages/Profile'
+import Kanban from './pages/Kanban'
+import CalendarPage from './pages/CalendarPage'
+import Analytics from './pages/Analytics'
 import Layout from './components/Layout'
+import ChatBot from './components/ChatBot'
 
 function Protected({ children }) {
   const { user, loading } = useAuth()
@@ -42,11 +46,18 @@ export default function App() {
           <Route element={<Protected><Layout /></Protected>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/kanban" element={<Kanban />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
+
+        <Protected>
+          <ChatBot />
+        </Protected>
       </BrowserRouter>
     </AuthProvider>
   )

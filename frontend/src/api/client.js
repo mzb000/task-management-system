@@ -68,4 +68,9 @@ export const miscApi = {
   activity: () => api.get('/activity'),
 }
 
+// ---- AI Chat ----
+export const chatApi = {
+  send: (messages) => api.post('/chat', { messages }),
+}
+
 export default api
