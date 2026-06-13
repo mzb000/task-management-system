@@ -13,6 +13,11 @@ import Profile from './pages/Profile'
 import Kanban from './pages/Kanban'
 import CalendarPage from './pages/CalendarPage'
 import Analytics from './pages/Analytics'
+import NotificationsPage from './pages/Notifications'
+import ActivityPage from './pages/Activity'
+import Team from './pages/Team'
+import Workspaces from './pages/Workspaces'
+import SettingsPage from './pages/Settings'
 import Layout from './components/Layout'
 import ChatBot from './components/ChatBot'
 
@@ -63,6 +68,11 @@ export default function App() {
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/activity" element={<ActivityPage />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/workspaces" element={<Workspaces />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

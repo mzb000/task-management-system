@@ -70,6 +70,13 @@ export const miscApi = {
   activity: () => api.get('/activity'),
 }
 
+// ---- Workspaces ----
+export const workspaceApi = {
+  list: () => api.get('/workspaces'),
+  create: (data) => api.post('/workspaces', data),
+  invite: (wsId, email) => api.post(`/workspaces/${wsId}/invite`, null, { params: { email } }),
+}
+
 // ---- AI Chat ----
 export const chatApi = {
   send: (messages) => api.post('/chat', { messages }),

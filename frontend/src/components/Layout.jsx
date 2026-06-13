@@ -4,18 +4,40 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, CheckSquare, User, LogOut, Bell, Menu, X, Zap,
   Kanban, CalendarDays, BarChart2, Sun, Moon, Settings, ChevronDown,
+  Users, Briefcase, Activity, BellDot,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { miscApi } from '../api/client'
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { to: '/kanban', label: 'Kanban', icon: Kanban },
-  { to: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { to: '/analytics', label: 'Analytics', icon: BarChart2 },
+const NAV_SECTIONS = [
+  {
+    label: null,
+    items: [
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/tasks', label: 'Tasks', icon: CheckSquare },
+      { to: '/kanban', label: 'Kanban', icon: Kanban },
+      { to: '/calendar', label: 'Calendar', icon: CalendarDays },
+      { to: '/analytics', label: 'Analytics', icon: BarChart2 },
+    ],
+  },
+  {
+    label: 'Workspace',
+    items: [
+      { to: '/team', label: 'Team', icon: Users },
+      { to: '/workspaces', label: 'Workspaces', icon: Briefcase },
+    ],
+  },
+  {
+    label: 'You',
+    items: [
+      { to: '/notifications', label: 'Notifications', icon: BellDot },
+      { to: '/activity', label: 'Activity', icon: Activity },
+    ],
+  },
 ]
+
+const navItems = NAV_SECTIONS.flatMap(s => s.items)
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -64,44 +86,59 @@ export default function Layout() {
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const active = location.pathname === item.to
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setSidebarOpen(false)}
-              className="relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors group"
-            >
-              {active && (
-                <motion.div
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 bg-brand-600 rounded-lg"
-                  transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                />
-              )}
-              <Icon
-                size={15}
-                className={`relative z-10 flex-shrink-0 ${
-                  active ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'
-                }`}
-              />
-              <span className={`relative z-10 ${
-                active ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
-              }`}>
-                {item.label}
-              </span>
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-4">
+        {NAV_SECTIONS.map((section, si) => (
+          <div key={si}>
+            {section.label && (
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest px-3 mb-1">{section.label}</p>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = location.pathname === item.to
+                const Icon = item.icon
+                const badge = item.to === '/notifications' ? unread : 0
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setSidebarOpen(false)}
+                    className="relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors group"
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="sidebar-active"
+                        className="absolute inset-0 bg-brand-600 rounded-lg"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    <Icon
+                      size={15}
+                      className={`relative z-10 flex-shrink-0 ${
+                        active ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'
+                      }`}
+                    />
+                    <span className={`relative z-10 flex-1 ${
+                      active ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                    }`}>
+                      {item.label}
+                    </span>
+                    {badge > 0 && (
+                      <span className="relative z-10 text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full bg-brand-500 text-white px-1">
+                        {badge > 9 ? '9+' : badge}
+                      </span>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* User section at bottom */}
       <div className="px-3 py-3 border-t border-white/[0.06] flex-shrink-0">
         <Link
-          to="/profile"
+          to="/settings"
           onClick={() => setSidebarOpen(false)}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/[0.06] transition-colors group mb-0.5"
         >
@@ -226,11 +263,18 @@ export default function Layout() {
                             className={`px-4 py-3 border-b border-slate-50 dark:border-slate-700/50 last:border-0 ${
                               !n.is_read ? 'bg-brand-50/50 dark:bg-brand-900/20' : ''
                             }`}>
-                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{n.title}</p>
+                            {!n.is_read && <div className="w-1.5 h-1.5 rounded-full bg-brand-500 inline-block mr-1.5 mb-0.5" />}
+                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 inline">{n.title}</p>
                             {n.message && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>}
                           </div>
                         ))
                       )}
+                    </div>
+                    <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-700">
+                      <Link to="/notifications" onClick={() => setShowNotifs(false)}
+                        className="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline block text-center">
+                        View all notifications
+                      </Link>
                     </div>
                   </motion.div>
                 )}
@@ -268,6 +312,10 @@ export default function Layout() {
                     <Link to="/profile" onClick={() => setShowUserMenu(false)}
                       className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors">
                       <User size={14} /> Profile
+                    </Link>
+                    <Link to="/settings" onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors">
+                      <Settings size={14} /> Settings
                     </Link>
                     <button onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
