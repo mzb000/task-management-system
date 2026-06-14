@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, CheckSquare, User, LogOut, Bell, Menu, X, Zap,
   Kanban, CalendarDays, BarChart2, Sun, Moon, Settings, ChevronDown,
-  Users, Briefcase, Activity, BellDot,
+  Users, Briefcase, Activity, BellDot, GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -33,6 +33,12 @@ const NAV_SECTIONS = [
     items: [
       { to: '/notifications', label: 'Notifications', icon: BellDot },
       { to: '/activity', label: 'Activity', icon: Activity },
+    ],
+  },
+  {
+    label: 'Learning',
+    items: [
+      { to: '/learning', label: 'Cloud Learning', icon: GraduationCap },
     ],
   },
 ]

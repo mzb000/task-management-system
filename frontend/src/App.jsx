@@ -18,6 +18,7 @@ import ActivityPage from './pages/Activity'
 import Team from './pages/Team'
 import Workspaces from './pages/Workspaces'
 import SettingsPage from './pages/Settings'
+import Learning from './pages/Learning'
 import Layout from './components/Layout'
 import ChatBot from './components/ChatBot'
 
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="/team" element={<Team />} />
               <Route path="/workspaces" element={<Workspaces />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/learning" element={<Learning />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
