@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "no-reply@taskflow.app"
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # AI — DeepSeek
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-chat"
+
     # AI — Anthropic (legacy)
     ANTHROPIC_API_KEY: str = ""
 

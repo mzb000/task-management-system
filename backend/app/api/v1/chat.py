@@ -1,4 +1,4 @@
-"""AI chat — Groq (primary) → Gemini → Ollama → Anthropic (fallbacks)."""
+"""AI chat — DeepSeek (primary) → Groq → Gemini → Ollama → Anthropic (fallbacks)."""
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -40,6 +40,28 @@ def _build_system(user: User, tasks) -> str:
         f"Help with task management, priorities, productivity tips, and TaskFlow features. "
         f"Keep replies under 150 words. Be warm and actionable."
     )
+
+
+def _chat_deepseek(system: str, messages: List[ChatMessage]) -> str:
+    import httpx
+    payload = {
+        "model": settings.DEEPSEEK_MODEL,
+        "messages": [{"role": "system", "content": system}]
+        + [{"role": m.role, "content": m.content} for m in messages],
+        "max_tokens": 512,
+        "temperature": 0.7,
+    }
+    resp = httpx.post(
+        "https://api.deepseek.com/chat/completions",
+        headers={
+            "Authorization": f"Bearer {settings.DEEPSEEK_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
 
 
 def _chat_groq(system: str, messages: List[ChatMessage]) -> str:
@@ -122,15 +144,16 @@ def chat(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    has_deepseek = bool(settings.DEEPSEEK_API_KEY)
     has_groq = bool(settings.GROQ_API_KEY)
     has_gemini = bool(settings.GEMINI_API_KEY)
     has_ollama = bool(settings.OLLAMA_API_KEY)
     has_anthropic = bool(settings.ANTHROPIC_API_KEY)
 
-    if not any([has_groq, has_gemini, has_ollama, has_anthropic]):
+    if not any([has_deepseek, has_groq, has_gemini, has_ollama, has_anthropic]):
         raise HTTPException(
             status_code=503,
-            detail="AI not configured. Add GROQ_API_KEY to backend/.env",
+            detail="AI not configured. Add DEEPSEEK_API_KEY to backend/.env",
         )
 
     tasks = (
@@ -143,6 +166,8 @@ def chat(
     system = _build_system(current_user, tasks)
 
     providers = []
+    if has_deepseek:
+        providers.append(("DeepSeek", _chat_deepseek))
     if has_groq:
         providers.append(("Groq", _chat_groq))
     if has_gemini:
