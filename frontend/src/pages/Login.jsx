@@ -57,9 +57,6 @@ export default function Login() {
           Sign up
         </Link>
       </p>
-      <p className="text-center text-xs text-slate-400 mt-4">
-        Demo admin: admin@taskflow.app / admin123
-      </p>
     </AuthShell>
   )
 }
