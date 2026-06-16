@@ -35,8 +35,25 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "no-reply@taskflow.app"
     FRONTEND_URL: str = "http://localhost:5173"
 
-    # AI
+    # AI — DeepSeek
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-chat"
+
+    # AI — Anthropic (legacy)
     ANTHROPIC_API_KEY: str = ""
+
+    # AI — Ollama cloud
+    OLLAMA_API_KEY: str = ""
+    OLLAMA_BASE_URL: str = "https://ollama.com"
+    OLLAMA_MODEL: str = "llama3.2"
+
+    # AI — Google Gemini
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+
+    # AI — Groq
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.1-8b-instant"
 
     # File uploads
     UPLOAD_DIR: str = "uploads"

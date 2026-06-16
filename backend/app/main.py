@@ -1,8 +1,11 @@
 """FastAPI application entrypoint."""
 import os
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import api_router
@@ -16,9 +19,14 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version="1.0.0",
-    description="TaskFlow — a full-featured task management API.",
+    version="2.0.0",
+    description="TaskFlow — a full-featured task management API with bulk operations, advanced filtering, and AI chat.",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
+
+# Compress responses larger than 1KB
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +35,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    response.headers["X-Process-Time"] = f"{(time.perf_counter() - start) * 1000:.2f}ms"
+    return response
 
 # Serve uploaded files
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
@@ -43,7 +59,22 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    """Health check including database connectivity."""
+    db = SessionLocal()
+    try:
+        db.execute(__import__("sqlalchemy").text("SELECT 1"))
+        db_status = "healthy"
+    except Exception as exc:
+        db_status = f"unhealthy: {exc}"
+    finally:
+        db.close()
+
+    status = "healthy" if db_status == "healthy" else "degraded"
+    code = 200 if status == "healthy" else 503
+    return JSONResponse(
+        content={"status": status, "database": db_status, "version": "2.0.0"},
+        status_code=code,
+    )
 
 
 @app.on_event("startup")
