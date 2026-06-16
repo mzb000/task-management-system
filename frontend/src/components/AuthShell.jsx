@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Zap, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
+import Logo from './Logo'
 
 const features = [
   'Organize tasks with priorities & due dates',
@@ -33,11 +34,8 @@ export default function AuthShell({ title, subtitle, children }) {
           transition={{ duration: 0.7 }}
           className="relative z-10 max-w-sm text-white"
         >
-          <div className="flex items-center gap-2.5 mb-10">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center ring-1 ring-white/30">
-              <Zap size={22} className="text-white" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight">TaskFlow</span>
+          <div className="mb-10">
+            <Logo size="lg" textClass="text-2xl text-white" />
           </div>
           <h1 className="text-3xl font-bold leading-tight mb-3">
             Manage your work,<br />beautifully.
@@ -71,11 +69,8 @@ export default function AuthShell({ title, subtitle, children }) {
           className="w-full max-w-md"
         >
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center">
-              <Zap size={19} className="text-white" />
-            </div>
-            <span className="text-xl font-bold">TaskFlow</span>
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo size="md" textClass="text-xl text-slate-900 dark:text-white" />
           </div>
 
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{title}</h2>
