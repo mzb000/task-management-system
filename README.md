@@ -87,7 +87,6 @@ docker compose up --build
 - Frontend → http://localhost:5173
 - Backend API docs → http://localhost:8000/docs
 
-A default admin is auto-created: **admin@taskflow.app / admin123**
 
 ---
 
