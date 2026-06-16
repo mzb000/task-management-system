@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  LayoutDashboard, CheckSquare, User, LogOut, Bell, Menu, X, Zap,
+  LayoutDashboard, CheckSquare, User, LogOut, Bell, Menu, X,
   Kanban, CalendarDays, BarChart2, Sun, Moon, Settings, ChevronDown,
   Users, Briefcase, Activity, BellDot, GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import Logo from './Logo'
 import { miscApi } from '../api/client'
 
 const NAV_SECTIONS = [
@@ -85,10 +86,7 @@ export default function Layout() {
     <div className="h-full flex flex-col">
       {/* Logo */}
       <div className="h-14 flex items-center gap-2.5 px-5 border-b border-white/[0.06] flex-shrink-0">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center shadow-lg shadow-brand-600/30">
-          <Zap size={14} className="text-white" />
-        </div>
-        <span className="text-[15px] font-bold tracking-tight text-white">TaskFlow</span>
+        <Logo size="sm" textClass="text-[15px] text-white" />
       </div>
 
       {/* Nav items */}
